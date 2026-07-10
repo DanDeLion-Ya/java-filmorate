@@ -95,10 +95,11 @@ public class UserController {
     // Проверка логина на пустоту и на пробелы
     public void validateLogin(String login) {
         log.info("Проверка login на отсутствие символов и на наличие пробелов.");
-        if (login == null){
+        if (login == null) {
             log.warn("Не был введён login.");
             throw new ValidationException("Логин не может быть пустым");
-        } if (login.contains(" ")) {
+        }
+        if (login.contains(" ")) {
             log.warn("login содержит пробелы.");
             throw new ValidationException("Логин не должен содержать пробелы");
         }
