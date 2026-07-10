@@ -115,9 +115,9 @@ public class FilmController {
     }
 
 // Проверка продолжительности
-    public void validateDuration(Duration duration) {
+    public void validateDuration(int duration) {
         log.info("Проверка продолжительности. Продолжительность не должна быть отрицательным числом.");
-        if (duration.isNegative() || duration.isZero()) {
+        if (duration <= 0) {
             log.warn("Введено отрицательное число продолжительности: {}.", duration);
             throw new ValidationException("Продолжительность должна быть положительным числом");
         }

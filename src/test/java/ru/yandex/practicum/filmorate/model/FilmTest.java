@@ -20,7 +20,7 @@ public class FilmTest {
         film.setName("Хакеры");
         film.setDescription("Фильм о хакерах, взломах и молодой Анджелине Джоли.");
         film.setReleaseDate(LocalDate.of(1995,9,15));
-        film.setDuration(Duration.ofMinutes(107));
+        film.setDuration(107);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class FilmTest {
 
     @Test
     public void shouldThrowExceptionWhenDurationIsNegativeValue() {
-        film.setDuration(Duration.ofMinutes(-107));
+        film.setDuration(-107);
         assertThrows(ValidationException.class,() -> {
             filmController.validateDuration(film.getDuration());
         });
@@ -107,7 +107,7 @@ public class FilmTest {
 
     @Test
     public void shouldThrowExceptionWhenDurationIsZero() {
-        film.setDuration(Duration.ofMinutes(0));
+        film.setDuration(0);
         assertThrows(ValidationException.class,() -> {
             filmController.validateDuration(film.getDuration());
         });
