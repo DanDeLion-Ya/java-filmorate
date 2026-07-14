@@ -17,7 +17,7 @@ public class Film {
     @NotBlank(message = "У фильма должно быть название и название не может состоять только из пробелов!")
     private String name;
 
-    @Size(max=200, message = "Описание не должно превышать 200 символов")
+    @Size(max = 200, message = "Описание не должно превышать 200 символов")
     private String description;
 
     @NotNull(message = "Нужно указать дату релиза")
