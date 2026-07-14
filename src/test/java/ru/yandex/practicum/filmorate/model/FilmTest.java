@@ -38,7 +38,7 @@ public class FilmTest {
     public void shouldThrowExceptionWhenNameIsNull() {
         film.setName(null);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<Film> textViolation = violations.iterator().next();
         assertEquals("У фильма должно быть название и название не может состоять только из пробелов!",
@@ -49,7 +49,7 @@ public class FilmTest {
     public void shouldThrowExceptionWhenNameIsBlank() {
         film.setName("");
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<Film> textViolation = violations.iterator().next();
         assertEquals("У фильма должно быть название и название не может состоять только из пробелов!",
@@ -60,7 +60,7 @@ public class FilmTest {
     public void shouldThrowExceptionWhenNameIsOnlySpaces() {
         film.setName("   ");
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<Film> textViolation = violations.iterator().next();
         assertEquals("У фильма должно быть название и название не может состоять только из пробелов!",
@@ -71,7 +71,7 @@ public class FilmTest {
     public void shouldThrowExceptionWhenDescriptionIsMoreSymbols() {
         film.setDescription("У".repeat(201));
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<Film> textViolation = violations.iterator().next();
         assertEquals("Описание не должно превышать 200 символов",

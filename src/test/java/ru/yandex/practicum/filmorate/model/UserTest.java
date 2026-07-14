@@ -40,7 +40,7 @@ public class UserTest {
     public void shouldThrowExceptionWhenEmailIsNull() {
         user.setEmail(null);
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<User> textViolation = violations.iterator().next();
         assertEquals("Email не может быть пустым", textViolation.getMessage());
@@ -50,7 +50,7 @@ public class UserTest {
     public void shouldThrowExceptionWhenEmailHasNoAtSymbol() {
         user.setEmail("10sprintyandex.ru");
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<User> textViolation = violations.iterator().next();
         assertEquals("Нельзя просто так взять и не поставить '@'", textViolation.getMessage());
@@ -60,7 +60,7 @@ public class UserTest {
     public void shouldThrowExceptionWhenLoginIsNull() {
         user.setLogin(null);
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<User> textViolation = violations.iterator().next();
         assertEquals("Логин не может быть пустым и содержать пробелы", textViolation.getMessage());
@@ -70,7 +70,7 @@ public class UserTest {
     public void shouldThrowExceptionWhenLoginIsHasSpace() {
         user.setLogin("practi ndex");
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<User> textViolation = violations.iterator().next();
         assertEquals("Логин не может быть пустым и содержать пробелы", textViolation.getMessage());
@@ -80,7 +80,7 @@ public class UserTest {
     public void shouldThrowExceptionWhenLoginIsOnlySpaces() {
         user.setLogin("   ");
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(2 ,violations.size());
+        assertEquals(2, violations.size());
 
         ConstraintViolation<User> textViolation = violations.iterator().next();
         assertEquals("Логин не может быть пустым и содержать пробелы", textViolation.getMessage());
@@ -111,7 +111,7 @@ public class UserTest {
     public void shouldThrowExceptionWhenBirthdayIsNull() {
         user.setBirthday(null);
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<User> textViolation = violations.iterator().next();
         assertEquals("Дата рождения должна быть указана", textViolation.getMessage());
@@ -121,7 +121,7 @@ public class UserTest {
     public void shouldThrowExceptionWhenBirthdayIsFuture() {
         user.setBirthday(LocalDate.of(2500,9,15));
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1 ,violations.size());
+        assertEquals(1, violations.size());
 
         ConstraintViolation<User> textViolation = violations.iterator().next();
         assertEquals("День рождения не может быть в будущем", textViolation.getMessage());
