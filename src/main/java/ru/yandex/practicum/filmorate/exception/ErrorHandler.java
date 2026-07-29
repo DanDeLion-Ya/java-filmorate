@@ -39,4 +39,11 @@ public class ErrorHandler {
         log.warn("Ошибка валидации: {}", message);
         return new ExceptionResponse(message);
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ExceptionResponse handleException(Exception e) {
+        log.error("Непредвиденная ошибка: {}", e.getMessage());
+        return new ExceptionResponse("Произошла непредвиденная ошибка!");
+    }
 }

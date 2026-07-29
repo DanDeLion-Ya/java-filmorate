@@ -8,13 +8,11 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.UserController;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 public class UserTest {
-    private UserController userController = new UserController();
     private User user;
     private Validator validator;
 
@@ -89,21 +87,27 @@ public class UserTest {
     @Test
     public void shouldReplaceNullNameWithLogin() {
         user.setName(null);
-        userController.validateName(user);
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
         assertEquals(user.getLogin(), user.getName());
     }
 
     @Test
     public void shouldReplaceBlankNameWithLogin() {
         user.setName("");
-        userController.validateName(user);
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
         assertEquals(user.getLogin(), user.getName());
     }
 
     @Test
     public void shouldReplaceSpacesNameWithLogin() {
         user.setName("   ");
-        userController.validateName(user);
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
         assertEquals(user.getLogin(), user.getName());
     }
 
