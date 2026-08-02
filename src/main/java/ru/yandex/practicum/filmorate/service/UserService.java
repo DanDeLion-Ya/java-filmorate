@@ -21,11 +21,31 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public void addFriends(Long userId, Long friendId) {
-        if (userId == null || friendId == null) {
-            log.warn("Данные о пользователе или о друге не переданы!");
-            throw new NotFoundException("Пользователь или искомый друг не могут быть null");
+    public User createUser(User newUser) {
+        validateName(newUser);
+        return userStorage.createUser(newUser);
+    }
+
+    public User updateUser(User updatedUser) {
+        validateName(updatedUser);
+        return userStorage.updateUser(updatedUser);
+    }
+
+    public List<User> getAllUsers() {
+        return userStorage.getAllUsers();
+    }
+
+    // Проверка на пустоту поля имени и заменой на login
+    public void validateName(User user) {
+        log.info("Проверка имени на отсутствие символов и его заменой на login.");
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.info("Замена пустого имени на login");
+            user.setName(user.getLogin());
         }
+        log.info("Имя заменено на логин: {}.", user.getLogin());
+    }
+
+    public void addFriends(Long userId, Long friendId) {
         log.info("Попытка пользователя с ID {} добавить в друзья пользователя с ID {}", userId, friendId);
         User user = userStorage.getUserId(userId);
         User foundFriend = userStorage.getUserId(friendId);
@@ -44,10 +64,6 @@ public class UserService {
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        if (userId == null || friendId == null) {
-            log.warn("Данные о пользователе или о друге не переданы!");
-            throw new NotFoundException("Пользователь или искомый друг не могут быть null");
-        }
         log.info("Попытка пользователя с ID {} удалить из друзей пользователя с ID {}", userId, friendId);
         User user = userStorage.getUserId(userId);
         User foundFriend = userStorage.getUserId(friendId);
@@ -62,10 +78,6 @@ public class UserService {
     }
 
     public List<User> getFriends(Long userId) {
-        if (userId == null) {
-            log.warn("Данные о пользователе не переданы!");
-            throw new NotFoundException("Пользователь не может быть null");
-        }
         log.info("Запрос списка друзей пользователя с ID {}", userId);
         User user = userStorage.getUserId(userId);
         List<Long> listFriendsOfUser = new ArrayList<>(user.getFriends());
@@ -78,10 +90,6 @@ public class UserService {
     }
 
     public List<User> getMutualFriends(Long userId, Long friendId) {
-        if (userId == null || friendId == null) {
-            log.warn("Данные о пользователе или о друге не переданы!");
-            throw new NotFoundException("Пользователь или искомый друг не могут быть null");
-        }
         log.info("Запрос списка общих друзей пользователя с ID {} и пользователя с ID {}", userId, friendId);
         User user = userStorage.getUserId(userId);
         User friend = userStorage.getUserId(friendId);

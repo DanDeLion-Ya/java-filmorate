@@ -5,11 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -27,22 +29,34 @@ public class FilmService {
         this.userStorage = userStorage;
     }
 
+    public Film addFilm(Film newFilm) {
+        validateReleaseDate(newFilm.getReleaseDate());
+        return filmStorage.addFilm(newFilm);
+    }
+
+    public Film updateFilm(Film updatedFilm) {
+        validateReleaseDate(updatedFilm.getReleaseDate());
+        return filmStorage.updateFilm(updatedFilm);
+    }
+
+    public List<Film> getAllFilms() {
+        return filmStorage.getAllFilms();
+    }
+
+    // Проверка на корректность даты релиза
+    public void validateReleaseDate(LocalDate releaseDate) {
+        LocalDate birthdayMovie = LocalDate.of(1895, 12, 28);
+        log.info("Проверка на корректность даты релиза добавляемого фильма. Не раньше {} и не позже текущей даты {}.",
+                birthdayMovie, LocalDate.now());
+        if (releaseDate.isBefore(birthdayMovie)) {
+            log.warn("Введена дата раньше возможной. Введено: {}. Можно не раньше: {}.", releaseDate, birthdayMovie);
+            throw new ValidationException("Нельзя указать дату релиза раньше, чем 28 декабря 1895 года");
+        }
+        log.info("Введена корректная дата релиза: {}.", releaseDate);
+    }
+
     public void addLike(Film film, User user) {
-        if (film == null || user == null) {
-            log.warn("Данные о фильме или о пользователе не переданы!");
-            throw new NotFoundException("Фильм или пользователь не могут быть null");
-        }
         log.info("Попытка пользователя {} на добавление Лайка фильму {}", user, film);
-        User foundUser = userStorage.getUserId(user.getId());
-        if (foundUser == null) {
-            log.warn("Искомый пользователь {} не найден!", foundUser);
-            throw new NotFoundException("Пользователь, который хочет поставить Лайк не найден!");
-        }
-        Film foundFilm = filmStorage.getFilmId(film.getId());
-        if (foundFilm == null) {
-            log.warn("Искомый фильм {} не найден!", foundFilm);
-            throw new NotFoundException("Фильм, который заслужил твоего Лайка не найден!");
-        }
         if (film.getLikes().contains(user.getId())) {
             log.warn("Пользователь уже поставил Лайк этому фильму.");
             throw new DuplicatedDataException("Пользователь уже поставил лайк этому фильму.");
@@ -52,21 +66,7 @@ public class FilmService {
     }
 
     public void removeLike(Film film, User user) {
-        if (film == null || user == null) {
-            log.warn("Данные о фильме или о пользователе не переданы!");
-            throw new NotFoundException("Фильм или пользователь не могут быть null");
-        }
         log.info("Попытка пользователя {} на удаление Лайка у фильма {}", user, film);
-        User foundUser = userStorage.getUserId(user.getId());
-        if (foundUser == null) {
-            log.warn("Искомый пользователь {} не найден!", foundUser);
-            throw new NotFoundException("Пользователь, который хочет удалить Лайк не найден!");
-        }
-        Film foundFilm = filmStorage.getFilmId(film.getId());
-        if (foundFilm == null) {
-            log.warn("Искомый фильм {} не найден!", foundFilm);
-            throw new NotFoundException("Фильм, который разочаровал тебя не найден!");
-        }
         if (!film.getLikes().contains(user.getId())) {
             log.warn("Пользователь не ставил Лайк этому фильму.");
             throw new NotFoundException("Нельзя удалить Лайкол, если пользователь не ставил его этому фильму.");
@@ -85,7 +85,7 @@ public class FilmService {
                 .sorted(Comparator.comparingInt((Film film) -> film.getLikes().size()).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
-        log.info("Возвращается подборка топ {} фильмов", listFilms.size());
+        log.info("Возвращается подборка топ {} фильмов", result.size());
         return result;
     }
 

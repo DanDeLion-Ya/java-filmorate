@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 
@@ -14,30 +13,28 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
 
     @Autowired
-    public UserController(UserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User newUser) {
         validateName(newUser);
-        return userStorage.createUser(newUser);
+        return userService.createUser(newUser);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User updatedUser) {
         validateName(updatedUser);
-        return userStorage.updateUser(updatedUser);
+        return userService.updateUser(updatedUser);
     }
 
     @GetMapping
     public List<User> getAllUsers() {
-        return userStorage.getAllUsers();
+        return userService.getAllUsers();
     }
 
     // Проверка на пустоту поля имени и заменой на login
@@ -68,5 +65,10 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{friendId}")
     public List<User> getMutualFriends(@PathVariable long id, @PathVariable long friendId) {
         return userService.getMutualFriends(id, friendId);
+    }
+
+    @GetMapping("/{id}")
+    public User getUserId(@PathVariable Long id) {
+        return userService.getUserId(id);
     }
 }
