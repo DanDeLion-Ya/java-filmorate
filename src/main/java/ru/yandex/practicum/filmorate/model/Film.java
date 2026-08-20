@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,7 +30,9 @@ public class Film {
     @Positive(message = "Продолжительность должна быть положительным числом")
     private int duration;
 
+    private List<Genre> genres;
+
+    private MPA rating;
+
     private Set<Long> likes = new HashSet<>();
 }
-
-
