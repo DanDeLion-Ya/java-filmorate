@@ -59,9 +59,9 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         List<Object[]> listFilmToGenre = new ArrayList<>();
-        if(film.getGenres() != null && !film.getGenres().isEmpty()) {
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             log.info("Добавление жанров для фильма c ID: {}", id);
-            for (int i=0; i < film.getGenres().size(); i++) {
+            for (int i = 0; i < film.getGenres().size(); i++) {
                 Genre genre = film.getGenres().get(i);
                 Object[] filmToGenre = new Object[]{film.getGenres().get(i).getId(), id};
                 listFilmToGenre.add(filmToGenre);
@@ -81,17 +81,17 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-    public Film getFilmById (Long id) {
+    public Film getFilmById(Long id) {
         log.info("Запрос фильма по ID: {}", id);
-        String query ="SELECT * FROM films WHERE id = ?;";
+        String query = "SELECT * FROM films WHERE id = ?;";
         try {
             Film film = jdbcTemplate.queryForObject(query, new FilmRowMapper(), id);
-            String queryGenre ="SELECT * FROM genre JOIN film_genre ON genre.id = film_genre.genre_id " +
+            String queryGenre = "SELECT * FROM genre JOIN film_genre ON genre.id = film_genre.genre_id " +
                     "WHERE film_genre.film_id = ?;";
             List<Genre> genres = jdbcTemplate.query(queryGenre, new GenreRowMapper(), id);
             film.setGenres(genres);
 
-            if(film.getMpa() != null && film.getMpa().getId() != null) {
+            if (film.getMpa() != null && film.getMpa().getId() != null) {
                 String queryMpa = "SELECT * FROM mpa WHERE id = ?";
                 Mpa mpa = jdbcTemplate.queryForObject(queryMpa, new MpaRowMapper(), film.getMpa().getId());
                 film.setMpa(mpa);
@@ -104,14 +104,14 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    public List<Film> getAllFilms () {
+    public List<Film> getAllFilms() {
         log.info("Запрос списка всех фильмов");
-        String query ="SELECT * FROM films;";
+        String query = "SELECT * FROM films;";
         List<Film> listFilms = jdbcTemplate.query(query, new FilmRowMapper());
 
-        for (int i=0; i < listFilms.size(); i++) {
+        for (int i = 0; i < listFilms.size(); i++) {
             long filmId = listFilms.get(i).getId();
-            String queryGenre ="SELECT * FROM genre JOIN film_genre ON genre.id = film_genre.genre_id " +
+            String queryGenre = "SELECT * FROM genre JOIN film_genre ON genre.id = film_genre.genre_id " +
                     "WHERE film_genre.film_id = ?;";
             List<Genre> genres = jdbcTemplate.query(queryGenre, new GenreRowMapper(), filmId);
             listFilms.get(i).setGenres(genres);
@@ -170,9 +170,9 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(queryOutLikes, id);
         log.debug("Удалены лайки для фильма ID c {}", id);
 
-        String query ="DELETE FROM films WHERE id = ?;";
+        String query = "DELETE FROM films WHERE id = ?;";
         int rowsDeletedFromFilm = jdbcTemplate.update(query, id);
-        if(rowsDeletedFromFilm == 0) {
+        if (rowsDeletedFromFilm == 0) {
             log.warn("Фильм с ID {} не удалось найти", id);
             throw new NotFoundException("Фильма с Id " + id + "не найден!");
         }

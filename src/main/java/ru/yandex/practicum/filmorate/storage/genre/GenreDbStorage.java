@@ -12,7 +12,7 @@ import java.util.List;
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public GenreDbStorage (JdbcTemplate jdbcTemplate) {
+    public GenreDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

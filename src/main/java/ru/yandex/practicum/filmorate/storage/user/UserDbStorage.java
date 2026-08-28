@@ -55,7 +55,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById (Long id) {
+    public User getUserById(Long id) {
         log.debug("Запрос пользователя по ID: {}", id);
         String query = "SELECT * FROM users WHERE id = ?;";
         try {
@@ -69,9 +69,9 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getAllUsers () {
+    public List<User> getAllUsers() {
         log.info("Запрос списка всех пользователей");
-        String query ="SELECT * FROM users;";
+        String query = "SELECT * FROM users;";
         List<User> listUsers = jdbcTemplate.query(query, new UserRowMapper());
         log.debug("Список сформирован. Найдено {} пользователей", listUsers.size());
         return listUsers;
@@ -106,9 +106,9 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void deleteUser(long id) {
         log.info("Запрос на удаление пользователя c ID {}", id);
-        String query ="DELETE FROM users WHERE id = ?;";
+        String query = "DELETE FROM users WHERE id = ?;";
         int rowsDeleted = jdbcTemplate.update(query, id);
-        if(rowsDeleted == 0) {
+        if (rowsDeleted == 0) {
             log.warn("Нельзя удалить пользователя если его нет в базе");
             throw new NotFoundException("Пользователь с Id " + id + "не найден!");
         }
