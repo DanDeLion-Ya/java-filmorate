@@ -50,8 +50,8 @@ public class FilmService {
         return filmStorage.getAllFilms();
     }
 
-    public void deleteFilm(long deletedFilm_id) {
-        filmStorage.deleteFilm(deletedFilm_id);
+    public void deleteFilm(long Id) {
+        filmStorage.deleteFilm(Id);
     }
 
     public Film getFilmById(Long id) {
