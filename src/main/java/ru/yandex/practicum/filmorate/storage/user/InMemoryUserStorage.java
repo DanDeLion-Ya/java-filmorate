@@ -56,12 +56,17 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserId(Long id) {
+    public User getUserById(Long id) {
         User user = users.get(id);
         if (user == null) {
             throw new NotFoundException("Фильм с id " + id + "не найден");
         }
         return user;
+    }
+
+    @Override
+    public void deleteUser(long id) {
+        users.remove(id);
     }
 
     public Long getNextId() {

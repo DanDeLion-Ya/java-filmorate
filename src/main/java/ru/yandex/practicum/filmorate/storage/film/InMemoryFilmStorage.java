@@ -17,7 +17,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private Map<Long, Film> films = new HashMap<>();
 
     @Override
-    public Film addFilm(Film newFilm) {
+    public Film createFilm(Film newFilm) {
         log.info("Попытка добавить фильм в каталог name = {}", newFilm.getName());
         for (Film film : films.values()) {
             if (film.getName().equals(newFilm.getName())) {
@@ -57,7 +57,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilmId(Long id) {
+    public void deleteFilm(long id) {
+        films.remove(id);
+    }
+
+    @Override
+    public Film getFilmById(Long id) {
         Film film = films.get(id);
         if (film == null) {
             throw new NotFoundException("Фильм с id " + id + "не найден");
