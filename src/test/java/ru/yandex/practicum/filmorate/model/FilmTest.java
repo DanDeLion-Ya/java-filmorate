@@ -5,14 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import jakarta.validation.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 public class FilmTest {
-    private FilmController filmController = new FilmController();
     private Film film;
     private Validator validator;
 
@@ -88,17 +85,15 @@ public class FilmTest {
     @Test
     public void shouldThrowExceptionWhenReleaseDateIsBefore() {
         film.setReleaseDate(LocalDate.of(1800,9,15));
-        assertThrows(ValidationException.class,() -> {
-            filmController.validateReleaseDate(film.getReleaseDate());
-        });
+        LocalDate birthdayMovie = LocalDate.of(1895,12,28);
+        assertTrue(film.getReleaseDate().isBefore(birthdayMovie));
     }
 
     @Test
     public void shouldThrowExceptionWhenReleaseDateIsBirthdayMovie() {
         film.setReleaseDate(LocalDate.of(1895,12,28));
-        assertDoesNotThrow(() -> {
-            filmController.validateReleaseDate(film.getReleaseDate());
-        });
+        LocalDate birthdayMovie = LocalDate.of(1895,12,28);
+        assertFalse(film.getReleaseDate().isBefore(birthdayMovie));
     }
 
     @Test

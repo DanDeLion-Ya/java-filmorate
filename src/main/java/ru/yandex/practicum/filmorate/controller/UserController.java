@@ -2,69 +2,39 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-    private Map<Long, User> users = new HashMap<>();
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User newUser) {
-        log.info("Попытка создать пользователя: {}", newUser.getName());
         validateName(newUser);
-        for (User user : users.values()) {
-            if (user.getName().equals(newUser.getName())) {
-                log.warn("Невозможно создать пользователя с таким именем. Такой пользователь уже существует.");
-                throw new DuplicatedDataException("Пользователь с таким именем уже существует");
-            }
-        }
-        newUser.setId(getNextId());
-        users.put(newUser.getId(), newUser);
-        log.info("Пользователь создан: id = {}, name = {}", newUser.getId(), newUser.getName());
-        return newUser;
+        return userService.createUser(newUser);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User updatedUser) {
-        Long currentIdUser = updatedUser.getId();
-            log.info("Попытка обновления данных пользователя {}.", updatedUser.getName());
-        if (users.get(currentIdUser) == null) {
-            log.warn("Невозможно обновить информацию о пользователе {}! " +
-                    "Т.к. данного пользователя не существует.", updatedUser.getName());
-            throw new NotFoundException("Такого пользователя не существует");
-        }
         validateName(updatedUser);
-        users.put(currentIdUser, updatedUser);
-        log.info("Данные о пользователе {} обновлены.", updatedUser.getName());
-        return updatedUser;
+        return userService.updateUser(updatedUser);
     }
 
     @GetMapping
     public List<User> getAllUsers() {
-        List<User> usersList = new ArrayList<>();
-        for (User user : users.values()) {
-            usersList.add(user);
-        }
-        log.info("Получение актуального списка всех пользователей.");
-        return usersList;
-    }
-
-    public Long getNextId() {
-        Long newId = users.keySet()
-                .stream()
-                .max(Long::compare)
-                .orElse(0L);
-        return newId + 1;
+        return userService.getAllUsers();
     }
 
     // Проверка на пустоту поля имени и заменой на login
@@ -75,5 +45,30 @@ public class UserController {
             user.setName(user.getLogin());
         }
         log.info("Имя заменено на логин: {}.", user.getLogin());
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriends(@PathVariable long id, @PathVariable long friendId) {
+        userService.addFriends(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable long id, @PathVariable long friendId) {
+        userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable long id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{friendId}")
+    public List<User> getMutualFriends(@PathVariable long id, @PathVariable long friendId) {
+        return userService.getMutualFriends(id, friendId);
+    }
+
+    @GetMapping("/{id}")
+    public User getUserId(@PathVariable Long id) {
+        return userService.getUserId(id);
     }
 }
