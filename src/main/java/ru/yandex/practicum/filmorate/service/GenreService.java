@@ -19,7 +19,7 @@ public class GenreService {
         this.genreDbStorage = genreDbStorage;
     }
 
-    public Genre getGenreById (long id) {
+    public Genre getGenreById(long id) {
         log.info("Запрос жанра по ID: {}", id);
         Genre genre = genreDbStorage.getGenreById(id);
         if (genre == null) {
