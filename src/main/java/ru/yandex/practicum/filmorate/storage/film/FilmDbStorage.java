@@ -109,29 +109,29 @@ public class FilmDbStorage implements FilmStorage {
             return listFilms;
         }
 
-        StringBuilder filmId = new StringBuilder();
+        StringBuilder filmIds = new StringBuilder();
         for (int i = 0; i < listFilms.size(); i++) {
             if (i > 0) {
-                filmId.append(", ");
+                filmIds.append(", ");
             }
-            filmId.append(listFilms.get(i).getId());
+            filmIds.append(listFilms.get(i).getId());
         }
 
-        String id = filmId.toString();
+        String id = filmIds.toString();
         String queryGenre = "SELECT * FROM genre JOIN film_genre ON genre.id = film_genre.genre_id " +
                             "WHERE film_genre.film_id IN (" + id + ");";
 
         Map<Long, List<Genre>> mapGenres = new HashMap<>();
 
         jdbcTemplate.query(queryGenre, rs -> {
-            Long film_Id = rs.getLong("film_id");
+            Long filmId = rs.getLong("film_id");
             Genre genre = new Genre();
             genre.setId(rs.getLong("id"));
             genre.setName(rs.getString("name"));
-            if (!mapGenres.containsKey(film_Id)) {
-                mapGenres.put(film_Id, new ArrayList<>());
+            if (!mapGenres.containsKey(filmId)) {
+                mapGenres.put(filmId, new ArrayList<>());
             }
-            mapGenres.get(film_Id).add(genre);
+            mapGenres.get(filmId).add(genre);
         });
 
         for (Film film : listFilms) {
@@ -243,14 +243,14 @@ public class FilmDbStorage implements FilmStorage {
             return topFilms;
         }
 
-        StringBuilder filmId = new StringBuilder();
+        StringBuilder filmIds = new StringBuilder();
         for (int i = 0; i < topFilms.size(); i++) {
             if (i > 0) {
-                filmId.append(", ");
+                filmIds.append(", ");
             }
-            filmId.append(topFilms.get(i).getId());
+            filmIds.append(topFilms.get(i).getId());
         }
-        String id = filmId.toString();
+        String id = filmIds.toString();
 
         String queryGenre = "SELECT * FROM genre " +
                 "JOIN film_genre ON genre.id = film_genre.genre_id " +
@@ -259,14 +259,14 @@ public class FilmDbStorage implements FilmStorage {
         Map<Long, List<Genre>> mapGenres = new HashMap<>();
 
         jdbcTemplate.query(queryGenre, rs -> {
-            Long film_Id = rs.getLong("film_id");
+            Long filmId = rs.getLong("film_id");
             Genre genre = new Genre();
             genre.setId(rs.getLong("id"));
             genre.setName(rs.getString("name"));
-            if (!mapGenres.containsKey(film_Id)) {
-                mapGenres.put(film_Id, new ArrayList<>());
+            if (!mapGenres.containsKey(filmId)) {
+                mapGenres.put(filmId, new ArrayList<>());
             }
-            mapGenres.get(film_Id).add(genre);
+            mapGenres.get(filmId).add(genre);
         });
 
         for (Film film : topFilms) {
