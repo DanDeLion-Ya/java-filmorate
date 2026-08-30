@@ -13,15 +13,15 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.GenreRowMapper;
-import ru.yandex.practicum.filmorate.storage.mapper.MpaRowMapper;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Repository
@@ -83,19 +83,15 @@ public class FilmDbStorage implements FilmStorage {
 
     public Film getFilmById(Long id) {
         log.info("Запрос фильма по ID: {}", id);
-        String query = "SELECT * FROM films WHERE id = ?;";
+        String query = "SELECT films.*, mpa.name AS mpa_name FROM films " +
+                "LEFT JOIN mpa ON films.rating_id = mpa.id " +
+                "WHERE films.id = ?;";
         try {
             Film film = jdbcTemplate.queryForObject(query, new FilmRowMapper(), id);
             String queryGenre = "SELECT * FROM genre JOIN film_genre ON genre.id = film_genre.genre_id " +
                     "WHERE film_genre.film_id = ?;";
             List<Genre> genres = jdbcTemplate.query(queryGenre, new GenreRowMapper(), id);
             film.setGenres(genres);
-
-            if (film.getMpa() != null && film.getMpa().getId() != null) {
-                String queryMpa = "SELECT * FROM mpa WHERE id = ?";
-                Mpa mpa = jdbcTemplate.queryForObject(queryMpa, new MpaRowMapper(), film.getMpa().getId());
-                film.setMpa(mpa);
-            }
             log.info("Найдено {} жанров для фильма ID {}", genres.size(), id);
             return film;
         } catch (EmptyResultDataAccessException e) {
@@ -106,15 +102,44 @@ public class FilmDbStorage implements FilmStorage {
 
     public List<Film> getAllFilms() {
         log.info("Запрос списка всех фильмов");
-        String query = "SELECT * FROM films;";
+        String query = "SELECT films.*, mpa.name AS mpa_name FROM films LEFT JOIN mpa ON films.rating_id = mpa.id;";
         List<Film> listFilms = jdbcTemplate.query(query, new FilmRowMapper());
 
+        if (listFilms.isEmpty()) {
+            return listFilms;
+        }
+
+        StringBuilder filmId = new StringBuilder();
         for (int i = 0; i < listFilms.size(); i++) {
-            long filmId = listFilms.get(i).getId();
-            String queryGenre = "SELECT * FROM genre JOIN film_genre ON genre.id = film_genre.genre_id " +
-                    "WHERE film_genre.film_id = ?;";
-            List<Genre> genres = jdbcTemplate.query(queryGenre, new GenreRowMapper(), filmId);
-            listFilms.get(i).setGenres(genres);
+            if (i > 0) {
+                filmId.append(", ");
+            }
+            filmId.append(listFilms.get(i).getId());
+        }
+
+        String id = filmId.toString();
+        String queryGenre = "SELECT * FROM genre JOIN film_genre ON genre.id = film_genre.genre_id " +
+                            "WHERE film_genre.film_id IN (" + id + ");";
+
+        Map<Long, List<Genre>> mapGenres = new HashMap<>();
+
+        jdbcTemplate.query(queryGenre, rs -> {
+            Long film_Id = rs.getLong("film_id");
+            Genre genre = new Genre();
+            genre.setId(rs.getLong("id"));
+            genre.setName(rs.getString("name"));
+            if (!mapGenres.containsKey(film_Id)) {
+                mapGenres.put(film_Id, new ArrayList<>());
+            }
+            mapGenres.get(film_Id).add(genre);
+        });
+
+        for (Film film : listFilms) {
+            List<Genre> genres = mapGenres.get(film.getId());
+            if (genres == null) {
+                genres = new ArrayList<>();
+            }
+            film.setGenres(genres);
         }
         log.debug("Найдено фильмов: {}", listFilms.size());
         return listFilms;
@@ -207,16 +232,48 @@ public class FilmDbStorage implements FilmStorage {
             count = 10;
         }
         log.info("Запрос топ {} популярных фильмов (по лайкам)", count);
-        String query = "SELECT films.* FROM films LEFT OUTER JOIN likes ON films.id = likes.film_id " +
+        String query = "SELECT films.*, mpa.name AS mpa_name FROM films " +
+                "LEFT OUTER JOIN mpa ON films.rating_id = mpa.id " +
+                "LEFT OUTER JOIN likes ON films.id = likes.film_id " +
                 "GROUP BY films.id ORDER BY COUNT(likes.user_id) DESC " +
                 "LIMIT ?";
         List<Film> topFilms = jdbcTemplate.query(query, new FilmRowMapper(), count);
 
-        for (Film film : topFilms) {
-            String queryGenre = "SELECT * FROM genre JOIN film_genre ON genre.id = film_genre.genre_id " +
-                    "WHERE film_genre.film_id = ?";
+        if (topFilms.isEmpty()) {
+            return topFilms;
+        }
 
-            List<Genre> genres = jdbcTemplate.query(queryGenre, new GenreRowMapper(), film.getId());
+        StringBuilder filmId = new StringBuilder();
+        for (int i = 0; i < topFilms.size(); i++) {
+            if (i > 0) {
+                filmId.append(", ");
+            }
+            filmId.append(topFilms.get(i).getId());
+        }
+        String id = filmId.toString();
+
+        String queryGenre = "SELECT * FROM genre " +
+                "JOIN film_genre ON genre.id = film_genre.genre_id " +
+                "WHERE film_genre.film_id IN (" + id + ");";
+
+        Map<Long, List<Genre>> mapGenres = new HashMap<>();
+
+        jdbcTemplate.query(queryGenre, rs -> {
+            Long film_Id = rs.getLong("film_id");
+            Genre genre = new Genre();
+            genre.setId(rs.getLong("id"));
+            genre.setName(rs.getString("name"));
+            if (!mapGenres.containsKey(film_Id)) {
+                mapGenres.put(film_Id, new ArrayList<>());
+            }
+            mapGenres.get(film_Id).add(genre);
+        });
+
+        for (Film film : topFilms) {
+            List<Genre> genres = mapGenres.get(film.getId());
+            if (genres == null) {
+                genres = new ArrayList<>();
+            }
             film.setGenres(genres);
         }
         log.info("Выдаётся топ {} популярных фильмов", topFilms.size());
